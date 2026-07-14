@@ -7,7 +7,7 @@ const cors=require('cors');
 
 const app=express();
 app.use(cors({
-    origin:"http://localhost:5500",
+    origin:"https://anantsharma108.github.io/",
     credentials:true
 }));
 app.use(express.json());
