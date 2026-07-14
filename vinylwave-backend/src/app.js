@@ -7,7 +7,7 @@ const cors=require('cors');
 
 const app=express();
 app.use(cors({
-    origin:"https://anantsharma108.github.io/",
+    origin:"https://anantsharma108.github.io",
     credentials:true
 }));
 app.use(express.json());
