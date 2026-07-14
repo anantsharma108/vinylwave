@@ -16,7 +16,7 @@
   "use strict";
 
   const state = {
-    apiBase: localStorage.getItem("vw_apiBase") || "http://localhost:3000",
+    apiBase: localStorage.getItem("vw_apiBase") || "https://vinylwave.onrender.com",
     user: JSON.parse(localStorage.getItem("vw_user") || "null"),
     musics: [],
     albums: [],
