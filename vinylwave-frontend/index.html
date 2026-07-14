@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vinylwave — Stream</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Ambient backdrop -->
+<div class="grain"></div>
+<div class="glow glow--a"></div>
+<div class="glow glow--b"></div>
+
+<!-- ============ AUTH GATE ============ -->
+<section id="authGate" class="auth-gate">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 100 100" class="brand-disc">
+          <circle cx="50" cy="50" r="48" class="disc-ring-outer"/>
+          <circle cx="50" cy="50" r="38" class="disc-ring"/>
+          <circle cx="50" cy="50" r="28" class="disc-ring"/>
+          <circle cx="50" cy="50" r="18" class="disc-ring"/>
+          <circle cx="50" cy="50" r="7" class="disc-label"/>
+        </svg>
+      </div>
+      <h1>Vinylwave</h1>
+      <p class="tagline">A quieter room for loud records.</p>
+    </div>
+
+    <div class="auth-tabs" role="tablist">
+      <button class="auth-tab is-active" data-tab="login" role="tab">Sign in</button>
+      <button class="auth-tab" data-tab="register" role="tab">Create account</button>
+    </div>
+
+    <form id="loginForm" class="auth-form is-active" autocomplete="off">
+      <label class="field">
+        <span>Username or email</span>
+        <input type="text" name="identifier" required placeholder="j.mitchell" />
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" name="password" required placeholder="••••••••" />
+      </label>
+      <button type="submit" class="btn btn--primary">Drop the needle</button>
+      <p class="form-error" data-error-for="login"></p>
+    </form>
+
+    <form id="registerForm" class="auth-form" autocomplete="off">
+      <label class="field">
+        <span>Username</span>
+        <input type="text" name="username" required placeholder="j.mitchell" />
+      </label>
+      <label class="field">
+        <span>Email</span>
+        <input type="email" name="email" required placeholder="you@label.com" />
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" name="password" required placeholder="Minimum 6 characters" />
+      </label>
+      <label class="field">
+        <span>I'm joining as</span>
+        <div class="role-toggle">
+          <label class="role-opt is-active">
+            <input type="radio" name="role" value="user" checked />
+            <i data-lucide="headphones"></i> Listener
+          </label>
+          <label class="role-opt">
+            <input type="radio" name="role" value="artist" />
+            <i data-lucide="mic-vocal"></i> Artist
+          </label>
+        </div>
+      </label>
+      <button type="submit" class="btn btn--primary">Press my account</button>
+      <p class="form-error" data-error-for="register"></p>
+    </form>
+
+    <button id="apiSettingsToggle" class="link-btn">
+      <i data-lucide="server-cog"></i> Server connection
+    </button>
+    <div id="apiSettingsPanel" class="api-settings">
+      <label class="field">
+        <span>Backend API base URL</span>
+        <input type="text" id="apiBaseInput" placeholder="http://localhost:3000" />
+      </label>
+      <p class="hint">Vinylwave is a static front end — point it at your running Spotify-clone server. Saved locally in your browser.</p>
+      <button id="apiBaseSave" class="btn btn--ghost btn--small">Save</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APP SHELL ============ -->
+<div id="appShell" class="app-shell hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand-mark brand-mark--small" aria-hidden="true">
+      <svg viewBox="0 0 100 100" class="brand-disc">
+        <circle cx="50" cy="50" r="48" class="disc-ring-outer"/>
+        <circle cx="50" cy="50" r="38" class="disc-ring"/>
+        <circle cx="50" cy="50" r="28" class="disc-ring"/>
+        <circle cx="50" cy="50" r="18" class="disc-ring"/>
+        <circle cx="50" cy="50" r="7" class="disc-label"/>
+      </svg>
+    </div>
+    <div class="sidebar-word">Vinylwave</div>
+
+    <nav class="nav">
+      <button class="nav-item is-active" data-view="home">
+        <i data-lucide="disc-3"></i> <span>The Stack</span>
+      </button>
+      <button class="nav-item" data-view="albums">
+        <i data-lucide="library-big"></i> <span>Albums</span>
+      </button>
+      <button class="nav-item" id="uploadNavItem" data-view="upload" style="display:none;">
+        <i data-lucide="upload-cloud"></i> <span>Press a Record</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="user-chip">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div class="user-meta">
+          <div class="user-name" id="userName">—</div>
+          <div class="user-role" id="userRole">listener</div>
+        </div>
+      </div>
+      <button id="logoutBtn" class="icon-btn" title="Sign out">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h2 id="viewTitle">The Stack</h2>
+        <p id="viewSubtitle">Fresh needle-drops from the whole label.</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="refreshBtn" title="Refresh"><i data-lucide="refresh-cw"></i></button>
+      </div>
+    </header>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- HOME VIEW -->
+    <section id="view-home" class="view is-active">
+      <div class="section-head">
+        <h3><i data-lucide="disc-3"></i> Fresh cuts</h3>
+      </div>
+      <div id="tracksGrid" class="grid grid--tracks"></div>
+      <div id="tracksEmpty" class="empty-state hidden">
+        <i data-lucide="disc-3"></i>
+        <p>No tracks pressed yet. The stack is spinning empty.</p>
+      </div>
+    </section>
+
+    <!-- ALBUMS VIEW -->
+    <section id="view-albums" class="view">
+      <div class="section-head">
+        <h3><i data-lucide="library-big"></i> Albums</h3>
+      </div>
+      <div id="albumsGrid" class="grid grid--albums"></div>
+      <div id="albumsEmpty" class="empty-state hidden">
+        <i data-lucide="library-big"></i>
+        <p>No albums shelved yet.</p>
+      </div>
+    </section>
+
+    <!-- ALBUM DETAIL VIEW -->
+    <section id="view-albumDetail" class="view">
+      <button class="back-btn" id="backToAlbums"><i data-lucide="arrow-left"></i> Back to albums</button>
+      <div class="album-detail-head">
+        <div class="album-cover album-cover--lg"><i data-lucide="disc-3"></i></div>
+        <div>
+          <p class="eyebrow">Album</p>
+          <h3 id="albumDetailTitle">—</h3>
+          <p id="albumDetailArtist" class="muted">—</p>
+        </div>
+      </div>
+      <div id="albumTrackList" class="track-list"></div>
+    </section>
+
+    <!-- UPLOAD VIEW (artist only) -->
+    <section id="view-upload" class="view">
+      <div class="upload-grid">
+        <form id="uploadTrackForm" class="panel-card">
+          <h3><i data-lucide="upload-cloud"></i> Upload a track</h3>
+          <label class="field">
+            <span>Track title</span>
+            <input type="text" name="title" required placeholder="Late Night Static" />
+          </label>
+          <label class="field">
+            <span>Audio file</span>
+            <input type="file" name="music" accept="audio/*" required />
+          </label>
+          <button type="submit" class="btn btn--primary">Press track</button>
+          <p class="form-error" data-error-for="uploadTrack"></p>
+        </form>
+
+        <form id="uploadAlbumForm" class="panel-card">
+          <h3><i data-lucide="library-big"></i> Assemble an album</h3>
+          <label class="field">
+            <span>Album title</span>
+            <input type="text" name="title" required placeholder="Static &amp; Silence" />
+          </label>
+          <div class="field">
+            <span>Pick tracks (from the stack)</span>
+            <div id="albumTrackPicker" class="track-picker"></div>
+          </div>
+          <button type="submit" class="btn btn--primary">Assemble album</button>
+          <p class="form-error" data-error-for="uploadAlbum"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ PLAYER BAR ============ -->
+<footer id="playerBar" class="player-bar hidden">
+  <div class="player-now">
+    <div class="turntable" id="turntable">
+      <svg viewBox="0 0 100 100" class="turntable-disc" id="turntableDisc">
+        <circle cx="50" cy="50" r="48" class="disc-ring-outer"/>
+        <circle cx="50" cy="50" r="38" class="disc-ring"/>
+        <circle cx="50" cy="50" r="28" class="disc-ring"/>
+        <circle cx="50" cy="50" r="18" class="disc-ring"/>
+        <circle cx="50" cy="50" r="7" class="disc-label"/>
+      </svg>
+      <svg viewBox="0 0 60 60" class="tonearm" id="tonearm">
+        <circle cx="48" cy="10" r="7" class="tonearm-pivot"/>
+        <line x1="48" y1="10" x2="14" y2="46" class="tonearm-arm"/>
+        <circle cx="14" cy="46" r="3" class="tonearm-head"/>
+      </svg>
+    </div>
+    <div class="player-meta">
+      <div class="player-title" id="playerTitle">Nothing spinning</div>
+      <div class="player-artist" id="playerArtist">Pick a track from the stack</div>
+    </div>
+  </div>
+
+  <div class="player-controls">
+    <button class="icon-btn icon-btn--lg" id="playPauseBtn"><i data-lucide="play"></i></button>
+    <div class="player-progress">
+      <span id="timeCurrent">0:00</span>
+      <input type="range" id="seekBar" min="0" max="100" value="0" />
+      <span id="timeTotal">0:00</span>
+    </div>
+  </div>
+
+  <div class="player-volume">
+    <i data-lucide="volume-2"></i>
+    <input type="range" id="volumeBar" min="0" max="100" value="80" />
+  </div>
+
+  <audio id="audioEl" preload="metadata"></audio>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
